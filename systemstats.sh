@@ -36,12 +36,12 @@ BLOCKSOUT=$(vmstat | tail -1 | awk '{print $10}')
 READSPERSEC=$(sar -b | tail -1 | awk '{print $5}')
 WRITESPERSEC=$(sar -b | tail -1 | awk '{print $6}')
 
-CPULINE="cpu,host=${HOSTNAME} user=${USER},idle=${IDLE},iowait=${IOWAIT} ${TIMESTAMP}"
-SWAPLINE="swap,host=${HOSTNAME} totalswap=${TOTALSWAP},freeswap=${FREESWAP},usedswap=${USEDSWAP} ${TIMESTAMP}"
-MEMLINE="memory,host=${HOSTNAME} totalmem=${TOTALMEM},freemem=${FREEMEM},cacheusage=${CACHEUSAGE} ${TIMESTAMP}"
-LOADLINE="load,host=${HOSTNAME} fifteenminute=${FIFTEENMINUTE},fiveminute=${FIVEMINUTE},oneminute=${ONEMINUTE} ${TIMESTAMP}"
-IOLINE="iops,host=${HOSTNAME} bi=${BLOCKSIN},bo=${BLOCKSOUT},rps=${READSPERSEC},wps=${WRITESPERSEC} ${TIMESTAMP}"
+CPULINE="cpu,host=${HOSTNAME} user=${USER},system=${SYSTEM},idle=${IDLE},iowait=${IOWAIT}"
+SWAPLINE="swap,host=${HOSTNAME} totalswap=${TOTALSWAP},freeswap=${FREESWAP},usedswap=${USEDSWAP}"
+MEMLINE="memory,host=${HOSTNAME} totalmem=${TOTALMEM},freemem=${FREEMEM},cacheusage=${CACHEUSAGE}"
+LOADLINE="load,host=${HOSTNAME} fifteenminute=${FIFTEENMINUTE},fiveminute=${FIVEMINUTE},oneminute=${ONEMINUTE}"
+IOLINE="iops,host=${HOSTNAME} bi=${BLOCKSIN},bo=${BLOCKSOUT},rps=${READSPERSEC},wps=${WRITESPERSEC}"
 
 for LINE in "${CPULINE}" "${SWAPLINE}" "${MEMLINE}" "${LOADLINE}" "${IOLINE}"; do
-  curl -i -XPOST 'http://localhost:8086/write?db=perf' --data-binary "${LINE}" >> influx.log 2>&1
+  curl -i -XPOST "http://${INFLUXHOST}:8086/write?db=perf" --data-binary "${LINE}" >/dev/null 2>&1
 done
