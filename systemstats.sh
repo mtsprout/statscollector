@@ -3,9 +3,6 @@
 INFLUXHOST=localhost
 INFLUXDB=perf
 
-# DATE/TIME for time series DB
-TIMESTAMP=$(date +%s)
-
 # HOSTNAME
 HOSTNAME=$(hostname -s)
 
