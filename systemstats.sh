@@ -22,6 +22,7 @@ USEDSWAP=$(( ${TOTALSWAP} - ${FREESWAP} ))
 TOTALMEM=$(cat /proc/meminfo | grep MemTotal | awk '{print $2'})
 FREEMEM=$(cat /proc/meminfo | grep MemFree | awk '{print $2'})
 CACHEUSAGE=$(cat /proc/meminfo | grep ^Cached | awk '{print $2'})
+AVAILABLE=$(cat /proc/meminfo | grep Available | awk '{print $2'})
 
 # LOAD INFO
 FIFTEENMINUTE=$(cat /proc/loadavg | awk '{print $1}')
@@ -36,7 +37,7 @@ WRITESPERSEC=$(sar -b | tail -1 | awk '{print $6}')
 
 CPULINE="cpu,host=${HOSTNAME} user=${USER},system=${SYSTEM},idle=${IDLE},iowait=${IOWAIT},nice=${NICE}"
 SWAPLINE="swap,host=${HOSTNAME} totalswap=${TOTALSWAP},freeswap=${FREESWAP},usedswap=${USEDSWAP}"
-MEMLINE="memory,host=${HOSTNAME} totalmem=${TOTALMEM},freemem=${FREEMEM},cacheusage=${CACHEUSAGE}"
+MEMLINE="memory,host=${HOSTNAME} totalmem=${TOTALMEM},freemem=${FREEMEM},cacheusage=${CACHEUSAGE},available=${AVAILABLE}"
 LOADLINE="load,host=${HOSTNAME} fifteenminute=${FIFTEENMINUTE},fiveminute=${FIVEMINUTE},oneminute=${ONEMINUTE}"
 IOLINE="iops,host=${HOSTNAME} bi=${BLOCKSIN},bo=${BLOCKSOUT},rps=${READSPERSEC},wps=${WRITESPERSEC}"
 
