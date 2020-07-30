@@ -7,10 +7,11 @@ INFLUXDB=perf
 HOSTNAME=$(hostname -s)
 
 # CPU INFO
-USER=$(vmstat | tail -1 | awk '{print $13}')
-SYSTEM=$(vmstat | tail -1 | awk '{print $14}')
-IDLE=$(vmstat | tail -1 | awk '{print $15}')
-IOWAIT=$(vmstat | tail -1 | awk '{print $16}')
+USER=$(sar 1 1 | tail -1 | awk '{print $3}')
+NICE=$(sar 1 1 | tail -1 | awk '{print $4}')
+SYSTEM=$(sar 1 1 | tail -1 | awk '{print $5}')
+IOWAIT=$(sar 1 1 | tail -1 | awk '{print $6}')
+IDLE=$(sar 1 1 | tail -1 | awk '{print $8}')
 
 # SWAP INFO
 TOTALSWAP=$(cat /proc/meminfo | grep SwapTotal | awk '{print $2'})
@@ -33,7 +34,7 @@ BLOCKSOUT=$(vmstat | tail -1 | awk '{print $10}')
 READSPERSEC=$(sar -b | tail -1 | awk '{print $5}')
 WRITESPERSEC=$(sar -b | tail -1 | awk '{print $6}')
 
-CPULINE="cpu,host=${HOSTNAME} user=${USER},system=${SYSTEM},idle=${IDLE},iowait=${IOWAIT}"
+CPULINE="cpu,host=${HOSTNAME} user=${USER},system=${SYSTEM},idle=${IDLE},iowait=${IOWAIT},nice=${NICE}"
 SWAPLINE="swap,host=${HOSTNAME} totalswap=${TOTALSWAP},freeswap=${FREESWAP},usedswap=${USEDSWAP}"
 MEMLINE="memory,host=${HOSTNAME} totalmem=${TOTALMEM},freemem=${FREEMEM},cacheusage=${CACHEUSAGE}"
 LOADLINE="load,host=${HOSTNAME} fifteenminute=${FIFTEENMINUTE},fiveminute=${FIVEMINUTE},oneminute=${ONEMINUTE}"
