@@ -3,9 +3,9 @@
 yum -y install wget epel-release
 yum -y install nginx
 
-wget https://githuburl/grafana.repo -o /etc/yum.repos.d/grafana.repo
-wget https://githuburl/influxdb.repo -o /etc/yum.repos.d/influxdb.repo
-wget https://githuburl/grafana.conf -o /etc/nginx/conf.d/grafana.conf
+wget https://raw.githubusercontent.com/mtsprout/statscollector/master/files/grafana.repo -o /etc/yum.repos.d/grafana.repo
+wget https://raw.githubusercontent.com/mtsprout/statscollector/master/files/influxdb.repo -o /etc/yum.repos.d/influxdb.repo
+wget https://raw.githubusercontent.com/mtsprout/statscollector/master/files/grafana.conf -o /etc/nginx/conf.d/grafana.conf
 
 yum -y install grafana
 yum -y install influxdb
