@@ -1,19 +1,29 @@
 #!/bin/bash
 
-yum -y install wget epel-release
-yum -y install nginx
+sudo apt-get install -y apt-transport-https
+sudo apt-get install -y software-properties-common wget
 
-wget https://raw.githubusercontent.com/mtsprout/statscollector/master/files/grafana.repo -o /etc/yum.repos.d/grafana.repo
-wget https://raw.githubusercontent.com/mtsprout/statscollector/master/files/influxdb.repo -o /etc/yum.repos.d/influxdb.repo
-wget https://raw.githubusercontent.com/mtsprout/statscollector/master/files/grafana.conf -o /etc/nginx/conf.d/grafana.conf
+wget -qO- https://repos.influxdata.com/influxdb.key | sudo apt-key add -
+source /etc/lsb-release
+echo "deb https://repos.influxdata.com/${DISTRIB_ID,,} ${DISTRIB_CODENAME} stable" | sudo tee /etc/apt/sources.list.d/influxdb.list
 
-yum -y install grafana
-yum -y install influxdb
+wget -q -O - https://packages.grafana.com/gpg.key | sudo apt-key add -
+echo "deb https://packages.grafana.com/enterprise/deb stable main" | sudo tee -a /etc/apt/sources.list.d/grafana.list 
+
+apt -y update
+apt -y install grafana-enterprise
+apt -y install influxdb
+apt -y install nginx
+
+
+wget https://raw.githubusercontent.com/mtsprout/statscollector/master/files/default -O /etc/nginx/sites-available/default
 
 systemctl enable influxdb
-systemctl enable grafana
+systemctl enable grafana-server
 systemctl enable nginx
 
-systemctl start influxdb
-systemctl start grafana
-systemctl start nginx
+systemctl daemon-reload
+
+systemctl restart influxdb
+systemctl restart grafana-server
+systemctl restart nginx
