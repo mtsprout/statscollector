@@ -4,7 +4,7 @@
 I was asked to help out a colleague who needed visualization of performance and utilization of some Linux machines that did not have any type of CDM monitoring installed.  I did not want to have to install any additional software on the machine, and it seemed like a good opportunity to learn InfluxDB and Grafana.
 
 ## What It Does
-The main script is a rehash of something I'd done 10+ years ago with `rrdtool`.  This isn't a super deep dive into the health of the machine, but does give a nice overview of what is happening.
+The main script is a rehash of something I'd done 10+ years ago with `rrdtool`.  This isn't a super deep dive into the health of the machine, but does give a nice overview of what is happening.  Also, the idea is to be able to collect these data without installing any additional software on the machine, such as Python modules.  The bash version will definitely work without any issues, and the python version _should_ work on most recent Linux distributions.
 
 ## How To Get it Going
 1. Build an AWS Ubuntu instance using the `user-data` file under files.  The size of the instance will likely depend on how much traffic you anticipate.  The script will build out your Influx database, Grafana server and nginx for reverse proxy.
