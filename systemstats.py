@@ -2,7 +2,6 @@
 
 import os
 import commands
-import urllib
 import urllib2
 
 influxLines = []
@@ -52,6 +51,15 @@ ioLine = "iops,host=" + hostName + \
     + ",rps=" + rwInfo[4] \
     + ",wps=" + rwInfo[5]
 influxLines.append(loadLine)
+
+memInfo = commands.getoutput("sar -r 1 1 | tail -1 | tr '%' ' '").split()
+memLine = "memory,host=" + hostName + \
+    " usedmem=" + memInfo[1] \
+    + ",usedmem=" + memInfo[2] \
+    + ",buffers=" + memInfo[4] \
+    + ",pctused=" + memInfo[3] \
+    + ",pctcommit=" + memInfo[7]
+influxLines.append(memLine)
 
 for line in influxLines:
   request = urllib2.Request(influxURL, data=line)
