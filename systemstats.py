@@ -44,13 +44,13 @@ loadLine = "load,host=" + hostName + \
 influxLines.append(loadLine)
 
 blockInfo = commands.getoutput("vmstat | tail -1").split()
-rwInfo = commands.getoutput("sar -b | tail -1").split()
+rwInfo = commands.getoutput("sar -b 1 1 | tail -1").split()
 ioLine = "iops,host=" + hostName + \
     " bi=" + blockInfo[8] \
     + ",bo=" + blockInfo[9] \
     + ",rps=" + rwInfo[4] \
     + ",wps=" + rwInfo[5]
-influxLines.append(loadLine)
+influxLines.append(ioLine)
 
 memInfo = commands.getoutput("sar -r 1 1 | tail -1 | tr '%' ' '").split()
 memLine = "memory,host=" + hostName + \
