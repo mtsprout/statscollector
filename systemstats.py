@@ -55,7 +55,7 @@ ioLine = "iops,host=" + hostName + \
     + ",wps=" + rwInfo[5]
 influxLines.append(ioLine)
 
-memInfo    = commands.getoutput("sar -r 1 1 | tail -1 | tr '%' ' '").split()
+memInfo  = commands.getoutput("sar -r 1 1 | tail -1 | tr '%' ' '").split()
 totalMem = commands.getoutput("cat /proc/meminfo| grep MemTotal | awk '{print $2}'")
 memLine  = "memory,host=" + hostName + \
     " freemem=" + memInfo[1] \
@@ -73,3 +73,4 @@ for line in influxLines:
   if (debug == True):
     logFile = open("systemstats.log","a")
     logFile.write(line)
+    logFile.write("\n")

@@ -12,7 +12,7 @@ The main script is a rehash of something I'd done 10+ years ago with `rrdtool`. 
 3. Go to the IP address of the server, and set the admin password for Grafana.
 4. Download the `systemstats.sh` directory to all the machines you want to send data.
 5. Set up a `cron` job to run the script every 5 minutes.
-6. As the Grafana administrator, you can use the `dashboard.json` file to create pre-set dashboards.  Use `sed` or your favorite text editor and replace "{{ template }}" with the hostname.
+6. As the Grafana administrator, you can use the `dashboard.json` file to create pre-set dashboards.  Use `sed` or your favorite text editor and replace "{{ hostname }}" with the hostname.
 
 ## What's Next
-This is still very much an "alpha" effort at this point.  I need to get the disk portion in there and cleaned up.  Also, I want to see if I can automate Grafana a little more. Ultimately, I want to get this where you can feed the script a list of hostnames/IP addresses and everything takes care of itself.
+This is still very much an "alpha" effort at this point. I want to see if I can automate Grafana a little more. Ultimately, I want to get this where you can feed the script a list of hostnames/IP addresses and everything takes care of itself.
