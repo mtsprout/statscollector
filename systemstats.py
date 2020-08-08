@@ -4,15 +4,18 @@ import os
 import commands
 import urllib2
 
-influxLines = []
-influxHost = "localhost"
-influxDB = "perf"
-influxURL = "http://" + influxHost+ ":8086/write?db=perf"
+debug = False
 
+influxLines = []
+influxHost  = "localhost"
+influxDB    = "perf"
+influxURL   = "http://" + influxHost+ ":8086/write?db=perf"
+
+# hostName    = commands.getoutput("hostname -s")
 hostName = os.uname()[1]
 
-cpuInfo = commands.getoutput("sar 1 1 | tail -1").split()
-cpuLine = "cpu,host=" + hostName + \
+cpuInfo     = commands.getoutput("sar 1 1 | tail -1").split()
+cpuLine     = "cpu,host=" + hostName + \
     " user=" + cpuInfo[2] \
     + ",system=" + cpuInfo[4] \
     + ",idle=" + cpuInfo[7] \
@@ -22,10 +25,10 @@ influxLines.append(cpuLine)
 
 partitionList = commands.getoutput("df | egrep -v 'tmp|run|cgroup|Filesystem' | tr '%' ' '").split("\n")
 for partition in partitionList:
-  partInfo = partition.split()
-  diskTotal = int(partInfo[1]) * 1024
-  diskUsed = int(partInfo[2]) * 1024
-  diskAvail = int(partInfo[3]) * 1024
+  partInfo      = partition.split()
+  diskTotal     = int(partInfo[1]) * 1024
+  diskUsed      = int(partInfo[2]) * 1024
+  diskAvail     = int(partInfo[3]) * 1024
   partitionLine = "partition,host=" + hostName \
      + ",mountpoint=" + partInfo[5] \
      + " totalsize=" + str(diskTotal) \
@@ -44,7 +47,7 @@ loadLine = "load,host=" + hostName + \
 influxLines.append(loadLine)
 
 blockInfo = commands.getoutput("vmstat | tail -1").split()
-rwInfo = commands.getoutput("sar -b 1 1 | tail -1").split()
+rwInfo    = commands.getoutput("sar -b 1 1 | tail -1").split()
 ioLine = "iops,host=" + hostName + \
     " bi=" + blockInfo[8] \
     + ",bo=" + blockInfo[9] \
@@ -52,15 +55,21 @@ ioLine = "iops,host=" + hostName + \
     + ",wps=" + rwInfo[5]
 influxLines.append(ioLine)
 
-memInfo = commands.getoutput("sar -r 1 1 | tail -1 | tr '%' ' '").split()
-memLine = "memory,host=" + hostName + \
-    " usedmem=" + memInfo[1] \
+memInfo    = commands.getoutput("sar -r 1 1 | tail -1 | tr '%' ' '").split()
+totalMem = commands.getoutput("cat /proc/meminfo| grep MemTotal | awk '{print $2}'")
+memLine  = "memory,host=" + hostName + \
+    " freemem=" + memInfo[1] \
     + ",usedmem=" + memInfo[2] \
-    + ",buffers=" + memInfo[4] \
     + ",pctused=" + memInfo[3] \
-    + ",pctcommit=" + memInfo[7]
+    + ",buffers=" + memInfo[4] \
+    + ",cached=" + memInfo[5] \
+    + ",pctcommit=" + memInfo[7] \
+    + ",totalmem=" + totalMem
 influxLines.append(memLine)
 
 for line in influxLines:
-  request = urllib2.Request(influxURL, data=line)
+  request  = urllib2.Request(influxURL, data=line)
   response = urllib2.urlopen(request)
+  if (debug == True):
+    logFile = open("systemstats.log","a")
+    logFile.write(line)
