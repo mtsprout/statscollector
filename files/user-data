@@ -1,6 +1,6 @@
 #!/bin/bash
 
-exec 1>>install.log
+exec 1>>install.log 2>&1
 
 apt-get install -y apt-transport-https
 apt-get install -y software-properties-common wget
@@ -16,7 +16,6 @@ apt -y update
 apt -y install grafana-enterprise
 apt -y install influxdb
 apt -y install nginx
-
 
 wget https://raw.githubusercontent.com/mtsprout/statscollector/master/files/default -O /etc/nginx/sites-available/default
 
