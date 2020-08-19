@@ -3,14 +3,47 @@
 import boto3
 import commands
 import uuid
+import argparse
+from os import path
 
 # Global variables 
 ec2 = boto3.resource('ec2')
 ami = 'ami-0bbe28eb2173f6167'
-default_instance_type = 't2.micro'
 deploymentUUID = str(uuid.uuid1())
 keyFileName = deploymentUUID + ".pem"
+influxDBport = 8086
 
+parser = argparse.ArgumentParser()
+parser.add_argument('filename', help="Enter path to deployment file.  It should be in .csv format with <hostname>,<ip>.")
+parser.add_argument("--size", help="Enter size of AWS instance to use.  The default is t2.micro.", choices=['t2.nano', 't2.micro','t2.small','t2.medium','t2.large','t2.xlarge','t2.2xlarge'], default='t2.micro')
+args = parser.parse_args()
+filename = args.filename
+instance_size = args.size
+
+def parse_deployment_file(deployfile):
+    """Parse the specified deployment file and make separate lists for hosts and IPs."""
+    deployHosts = []
+    deployIPs   = []
+    if (path.exists(deployfile)):
+        deployfile = open(deployfile, 'r')
+        entries = deployfile.readlines()
+        for entry in entries:
+            hostinfo = entry.split(",")
+            deployHosts.append(hostinfo[0])
+            deployIPs.append(hostinfo[1].rstrip("\n"))
+        return deployHosts, deployIPs
+    else:
+        exit(deployfile + " does not exist.")
+        
+def create_security_group(deployIPs):
+    """Create security group with IPs from deployment file."""
+    secgroup = ec2.create_security_group(
+        Description = 'Security group for Deployment ' + deploymentUUID,
+        GroupName = deploymentUUID
+        )
+    secGroupID = secgroup[0]
+    print secGroupID
+    
 def create_keypair():
     keyfile    = open(keyFileName,'w')
     keypair    = ec2.create_key_pair(KeyName=deploymentUUID)
@@ -23,30 +56,33 @@ def create_instance():
     userDataFile = open('files/user-data', 'r')
     userDataList = list(userDataFile)
     userDataString = "".join(userDataList)
-    instance = ec2.create_instances(
-        BlockDeviceMappings=[
-            {
-                 'DeviceName': '/dev/sda1',
-                 'VirtualName' : 'Root Partition',
-                 'Ebs' : {
-                     'VolumeSize' : 20,
-                     'VolumeType' : 'standard'
-                  },
-             }
-        ],
-        ImageId = ami,
-        InstanceType = default_instance_type,
-        UserData=userDataString,
-        KeyName = deploymentUUID,
-        MinCount = 1,
-        MaxCount = 1,
-        SecurityGroups=[
-            'SSH Only'
-        ]
-
-    )
-
+    try: 
+        instance = ec2.create_instances(
+            BlockDeviceMappings=[
+                {
+                     'DeviceName': '/dev/sda1',
+                     'VirtualName' : 'Root Partition',
+                     'Ebs' : {
+                         'VolumeSize' : 20,
+                         'VolumeType' : 'standard'
+                      },
+                 }
+            ],
+            ImageId = ami,
+            InstanceType = instance_size,
+            UserData=userDataString,
+            KeyName = deploymentUUID,
+            MinCount = 1,
+            MaxCount = 1,
+            SecurityGroups=[
+                'SSH Only'
+            ]
+        )
+    except:
+        print "Error." # FIXME
 
 if __name__ == "__main__":
-    create_keypair()
-    create_instance()
+    hostIPs = parse_deployment_file(filename)
+    create_security_group(hostIPs[1])
+    #create_keypair()
+    #create_instance()
