@@ -1,7 +1,7 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import boto3
-import commands
+import subprocess
 import uuid
 import argparse
 from os import path
@@ -14,6 +14,7 @@ deploymentUUID = str(uuid.uuid1())
 keyFileName = deploymentUUID + ".pem"
 influxDBport = 8086
 
+# Parse the command line
 parser = argparse.ArgumentParser()
 parser.add_argument('filename', help="Enter path to deployment file.  It should be in .csv format with <hostname>,<ip>.")
 parser.add_argument("--size", help="Enter size of AWS instance to use.  The default is t2.micro.", choices=['t2.nano', 't2.micro','t2.small','t2.medium','t2.large','t2.xlarge','t2.2xlarge'], default='t2.micro')
@@ -31,7 +32,7 @@ def parse_deployment_file(deployfile):
         for entry in entries:
             hostinfo = entry.split(",")
             deployHosts.append(hostinfo[0])
-            deployIPs.append(hostinfo[1].rstrip("\n"))
+            deployIPs.append(hostinfo[1].rstrip("\n")+"/32")
         return deployHosts, deployIPs
     else:
         exit(deployfile + " does not exist.")
@@ -44,7 +45,6 @@ def create_security_group(deployIPs):
         )
     secgroupId = secgroup.group_id
 
-    
     for address in deployIPs:
         rules = sg.authorize_security_group_ingress(
             GroupId = secgroupId,
@@ -63,7 +63,7 @@ def create_keypair():
     keypair    = ec2.create_key_pair(KeyName=deploymentUUID)
     KeyPairOut = keypair.key_material
     keyfile.write(KeyPairOut)
-    chmod = commands.getoutput("chmod 400 " + keyFileName)
+    subprocess.call(["chmod","400",keyFileName])
     keyfile.close()
 
 def create_instance(secGroup):
@@ -92,9 +92,23 @@ def create_instance(secGroup):
             secGroup,
         ]
     )
+    
+    instanceID = instance[0].instance_id
+
+    waiter = sg.get_waiter('instance_running')
+    waiter.wait(InstanceIds=[instanceID])
+   
+    InstanceDetails = sg.describe_instances(
+        InstanceIds = [
+            instanceID
+            ]
+        )
+
+    # publicIPAddress = InstanceDetails[WTFE]
+    
 
 if __name__ == "__main__":
-    hostIPs = parse_deployment_file(filename)
-    securityGroup = create_security_group(hostIPs[1])
+    hostinfo = parse_deployment_file(filename)
+    securityGroup = create_security_group(hostinfo[1])
     create_keypair()
     create_instance(securityGroup)
