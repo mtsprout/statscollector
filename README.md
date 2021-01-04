@@ -8,7 +8,7 @@ The main script is a rehash of something I'd done 10+ years ago with `rrdtool`. 
 
 ## How To Get it Going
 1. Have a .csv file of hostname and ip address for the machines that will receive the agent.
-2. Start `deploy.p` with that files as an input, along with the desired size of the EC2 instance.  (Default is t2.micro.)
+2. Start `deploy.py` with that files as an input, along with the desired size of the EC2 instance.  (Default is t2.micro.)
 3. Go to the IP address of the server, and set the admin password for Grafana.
 4. Download the `systemstats.sh` (or `systemstats.py`) script to all the machines you want to send data.
 5. Set up a `cron` job to run the script every 5 minutes.
